@@ -1,58 +1,52 @@
 ---
 name: yt-script
 description: >-
-  Write a YouTube video script from a raw idea - hook options off 21
-  formulas, scored, then the full spoken script with the retention beats
-  marked. Use whenever the user wants a video script, a hook, an opening
-  line, "what should I say", "write my next video", or is about to record
-  and does not have the first fifteen seconds yet.
+  Escreva roteiros em português do Brasil para o MasterDica, incluindo
+  aberturas, listas de filmes e séries, ganchos e revisão de ritmo.
 ---
 
 # yt-script
 
-One idea into a script somebody finishes.
+Transforme a pauta aprovada em um roteiro falável, original e fiel aos fatos confirmados.
 
-Two tools live in this folder and both actually run. Use them. Do not eyeball the hook.
+## Antes de escrever
 
-```bash
-python3 hookscore.py hooks.txt              # rank your hook options
-python3 hookscore.py --hook "one line"      # score a single one
-```
+1. Leia ~/.codex/youtube/voice.md, se estiver disponível. Na ausência, use o perfil editorial versionado em templates/voice.md; não invente maneirismos ou experiências pessoais do apresentador.
+2. Confirme o formato, quantidade de itens, duração e público pretendidos. Se já estiverem no pedido, não pergunte de novo.
+3. Confirme nomes oficiais em português do Brasil e fatos recentes em fontes confiáveis. Diferencie fatos, rumores e opiniões.
+4. Não crie números, notas, datas, plataformas, citações, fontes, disponibilidade brasileira ou resultados de audiência sem evidência.
 
-## Before you write
+## Abertura
 
-1. Read `~/.codex/youtube/voice.md` if it exists. That is the user's voice profile: how they talk
-   on camera, the words they never use, who they are talking to, what they will not claim. If it
-   does not exist, ask for **three of their own videos**, read or transcribe them, infer the voice,
-   and write the file. A script in the wrong voice is worse than no script, because they have to
-   read it out loud.
-2. Never invent a number, a result or a source. If a figure would strengthen it and you do not have
-   one, ask for it or write the line without it.
+Para listas do MasterDica:
 
-## The shape
+- Mire em 15–25 segundos, com um gancho direto e uma promessa que o vídeo cumpra.
+- Use a assinatura “Eu sou o Alexandre Cardoso…” no contexto natural da abertura.
+- Não use “Olá, pessoal” nem comece com explicação genérica do tema.
+- Antecipe um item forte sem revelar o nome da obra.
+- O primeiro item deve começar por volta de 0:20–0:25.
+- Coloque o CTA principal após o segundo item; não interrompa o gancho com pedido de inscrição.
 
-**The first 15 seconds is the whole job.** It does three things or the video leaks: confirm the
-click the title promised, open a question the viewer cannot close, and prove the payoff exists.
+## Itens da lista
 
-1. **Hook.** Write FIVE against [the 21 formulas](hooks.json), run them through `hookscore.py`,
-   keep the top two, and show the user both with their scores. Never hand over one hook.
-2. **The turn** (0:15-0:45). Say what the video is going to do, in one sentence, and start doing it.
-   No channel intro, no "before we get started", no subscribe pitch. Those are the single most
-   common cause of the 0:30 cliff.
-3. **The body.** One idea per beat. Mark each beat with what is ON SCREEN, not just what is said -
-   a talking head with nothing to look at is a podcast.
-4. **The payoff.** Deliver the thing the hook promised, explicitly, and say that you are delivering
-   it: "that is the prompt, it is in the description".
-5. **The close.** One ask. Not three.
+- Use cabeçalho no formato “NÚMERO X — [Nome da obra].”
+- Abra cada item com uma pergunta ou situação concreta e revele o nome da obra dentro do parágrafo.
+- Mire em 100–120 palavras e cerca de 40–50 segundos por item quando esse for o formato solicitado.
+- Varie a construção entre itens. Não repita uma sinopse com palavras trocadas.
+- Distribua obras fortes nas posições 1, 3 e 6 quando houver ao menos seis itens; adapte a distribuição quando a lista for menor.
+- Termine cada bloco com uma frase curta que explique por que vale assistir.
+- Não escreva transições para o item seguinte.
+- Reserve indicação de trailer oficial de aproximadamente 15 segundos no fim do bloco quando a produção solicitar esse elemento e houver trailer apropriado.
+- Não invente cenas. Sinalize onde entram imagens, cartelas ou trailer usando indicações curtas entre colchetes.
 
-## What to hand back
+## Ritmo e formato de entrega
 
-- the two best hooks with their scored panels
-- the script, beat by beat, with `[ON SCREEN: ...]` on every beat
-- the runtime estimate at 150 words per minute
-- one line naming which formula the winning hook used and why it fits this idea
+Entregue texto corrido para narração, com frases curtas e linguagem natural em PT-BR. Use os cabeçalhos numerados pedidos, sem subtítulos “Sinopse” ou “Comentário”. Estime duração a partir da quantidade de palavras e da velocidade informada; se ela não foi dada, identifique a estimativa como aproximada. Roteiros de listas devem manter o tamanho total solicitado pelo usuário.
 
-## The gate
+## Avaliação auxiliar de ganchos
 
-Nothing here publishes. This skill writes and you publish. Every output ends in a block the user
-copies, and the last line of every run is the question: **ship it, or change it?**
+Quando houver várias aberturas, use hookscore.py para localizar diferenças de especificidade, interesse, consequência e concisão. Mostre no máximo as três melhores opções e explique que a pontuação é uma heurística, não uma previsão de retenção. Aplique julgamento editorial: um gancho pode funcionar sem pergunta ou pronome direto.
+
+## Revisão final
+
+Confira se a abertura corresponde ao título, se cada afirmação factual está sustentada, se os nomes estão em PT-BR e se os itens têm extensão compatível com o pedido. Nada é publicado por esta skill; deixe o roteiro pronto para revisão humana.
