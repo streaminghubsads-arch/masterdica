@@ -11,7 +11,7 @@ Skills locais do Codex para apoiar a produção do canal MasterDica, da pesquisa
 5. **Preparar a edição** — use yt-edit para sugestões de corte e yt-chapters para rascunhos de capítulos. Confira tudo contra o vídeo antes de aplicar.
 6. **Aproveitar e revisar** — use yt-shorts, yt-comment, yt-retention e yt-audit quando houver transcrição, comentários ou dados do YouTube Studio disponíveis.
 
-Nenhuma etapa autoriza publicação. Revise fatos, títulos, roteiro, thumbnail e descrição antes de usar.
+Use templates/pacote-video.md para acompanhar cada vídeo. Nenhuma etapa autoriza publicação. Revise fatos, títulos, roteiro, thumbnail e descrição antes de usar.
 
 ## Skills incluídas
 
