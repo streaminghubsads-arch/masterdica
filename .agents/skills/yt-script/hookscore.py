@@ -1,129 +1,186 @@
 #!/usr/bin/env python3
-"""hookscore.py - score a YouTube hook before you waste a take on it.
+"""Avalia ganchos de vídeo em português brasileiro como apoio à revisão editorial.
 
-Five properties, 0-100 each, and a verdict that is 60% the mean and 40% the weakest one. The
-weakest-link weighting is deliberate: a hook with four strong properties and one dead one is a hook
-that leaks at the dead one, and averaging hides that.
+Uso:
+    python3 hookscore.py hooks.txt
+    python3 hookscore.py --hook "Uma família desaparece e ninguém sabe por quê"
+    python3 hookscore.py --json hooks.txt
 
-    python3 hookscore.py hooks.txt            # one hook per line, ranked
-    python3 hookscore.py --hook "one line"    # score a single hook
-    python3 hookscore.py --json hooks.txt     # machine-readable
-
-WHAT THIS CAN AND CANNOT TELL YOU. Measured against 74 real short-form hooks (first 15 seconds of
-auto-captions, top-8 and bottom-8 by views across five channels): it separates deliberately bad
-hooks from real ones well, and it separates a creator's own hits from their own misses barely at
-all. Treat a low score as a reason to look again, never a high score as a promise.
+A nota é uma heurística lexical. Não foi calibrada com resultados do MasterDica e não prevê
+retenção, cliques ou visualizações. Leia o gancho em voz alta e julgue a promessa no contexto.
 """
-import json, os, re, sys
+import json
+import os
+import re
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FORMULAS = json.load(open(os.path.join(HERE, "hooks.json")))["hooks"]
+with open(os.path.join(HERE, "hooks.json"), encoding="utf-8") as f:
+    FORMULAS = json.load(f)["hooks"]
 
-FILLER = {"basically","actually","literally","just","really","very","so","kind","sort","like",
-          "guys","hey","welcome","today","video","subscribe","channel"}
-VAGUE = {"amazing","incredible","insane","crazy","huge","massive","game","changer","secret",
-         "powerful","ultimate","best","revolutionary","mind","blowing","unbelievable"}
-CONCRETE = re.compile(r"\b(\d[\d,.]*\s?(%|k|m|x|s|m|h)?|\$\d|\d+\s?(second|minute|hour|day|week|month|year)s?)\b", re.I)
-YOU = re.compile(r"\b(you|your|you're|youre|yourself)\b", re.I)
-STAKE = re.compile(r"\b(lose|lost|wasting|waste|quit|fail|broke|cost|risk|before|stop|never|die|dying|dead)\b", re.I)
-CURIOSITY = re.compile(r"\b(why|how|what|which|until|before|but|nobody|almost|except|reason|actually)\b", re.I)
+FILLER = {
+    "basicamente", "literalmente", "realmente", "muito", "hoje", "vídeo",
+    "canal", "pessoal", "inscreva", "inscrever", "começar", "vamos",
+}
+VAGUE = {
+    "incrível", "insano", "absurdo", "chocante", "imperdível", "perfeito",
+    "surpreendente", "sensacional", "melhor", "épico",
+}
+CONCRETE = re.compile(
+    r"\b(?:\d[\d.,]*\s?(?:%|mil|milhão|milhões|h|min|s)?|"
+    r"\d+\s?(?:segundos?|minutos?|horas?|dias?|semanas?|meses?|anos?))\b",
+    re.I,
+)
+DIRECT = re.compile(r"\b(?:você|seu|sua|seus|suas|quem|já imaginou)\b", re.I)
+STAKES = re.compile(
+    r"\b(?:morrer|morte|perder|perdeu|sobreviver|preso|presa|perigo|ameaça|"
+    r"fugir|desaparecer|desapareceu|segredo|vingança|crime|risco|sem saída)\b",
+    re.I,
+)
+CURIOSITY = re.compile(
+    r"\b(?:por que|como|o que|quem|qual|até|mas|ninguém|ninguém sabe|"
+    r"antes|exceto|segredo|mistério|descobrir|revelar)\b",
+    re.I,
+)
+WORD = re.compile(r"[a-zà-ÿ0-9]+", re.I)
 
-def words(t): return re.findall(r"[a-z0-9'%$.]+", t.lower())
 
-def specificity(t):
-    w = words(t)
-    if not w: return 0
-    nums = len(CONCRETE.findall(t))
-    vague = sum(1 for x in w if x in VAGUE)
-    filler = sum(1 for x in w if x in FILLER)
-    s = 34 + nums * 22 - vague * 16 - filler * 5
-    # proper nouns that are not sentence-initial read as named things
-    s += min(18, 6 * sum(1 for x in t.split()[1:] if x[:1].isupper()))
-    return max(0, min(100, s))
+def words(text):
+    return WORD.findall(text.lower())
 
-def address(t):
-    n = len(YOU.findall(t))
-    first = 30 if YOU.search(" ".join(t.split()[:6])) else 0
-    return max(0, min(100, 26 + n * 20 + first))
 
-def stakes(t):
-    n = len(STAKE.findall(t))
-    return max(0, min(100, 22 + n * 26 + (14 if CONCRETE.search(t) else 0)))
+def specificity(text):
+    tokens = words(text)
+    if not tokens:
+        return 0
+    numbers = len(CONCRETE.findall(text))
+    vague = sum(token in VAGUE for token in tokens)
+    filler = sum(token in FILLER for token in tokens)
+    return max(0, min(100, 46 + numbers * 18 - vague * 12 - filler * 5))
 
-def curiosity(t):
-    n = len(CURIOSITY.findall(t))
-    q = 18 if t.strip().endswith("?") else 0
-    # a hook that resolves itself has no gap left
-    closed = -18 if re.search(r"\b(because|so that|which means)\b", t, re.I) else 0
-    return max(0, min(100, 24 + n * 17 + q + closed))
 
-def brevity(t):
-    n = len(words(t))
-    if n == 0: return 0
-    # 9-24 words is the band a spoken hook lands in at ~150wpm inside 10 seconds
-    if 9 <= n <= 24: return 100
-    if n < 9:  return max(30, 100 - (9 - n) * 11)
-    return max(10, 100 - (n - 24) * 7)
+def address(text):
+    tokens = words(text)
+    opening = " ".join(tokens[:6])
+    direct = bool(DIRECT.search(opening))
+    count = len(DIRECT.findall(text))
+    return max(0, min(100, 48 + count * 12 + (15 if direct else 0)))
 
-PROPS = [("SPECIFICITY", specificity), ("ADDRESS", address), ("STAKES", stakes),
-         ("CURIOSITY", curiosity), ("BREVITY", brevity)]
 
-def classify(t):
-    best, hits = None, 0
-    for f in FORMULAS:
-        n = sum(1 for p in f["match"] if re.search(p, t, re.I))
-        if n > hits: best, hits = f, n
-    return (best["name"] if best else "Unclassified"), hits
+def stakes(text):
+    count = len(STAKES.findall(text))
+    concrete = bool(CONCRETE.search(text))
+    return max(0, min(100, 38 + count * 18 + (10 if concrete else 0)))
 
-def score(t):
-    parts = {n: fn(t) for n, fn in PROPS}
-    vals = list(parts.values())
-    verdict = round(0.6 * (sum(vals) / len(vals)) + 0.4 * min(vals))
-    name, hits = classify(t)
+
+def curiosity(text):
+    count = len(CURIOSITY.findall(text))
+    question = 14 if text.strip().endswith("?") else 0
+    resolved = -12 if re.search(r"\b(?:porque|portanto|ou seja)\b", text, re.I) else 0
+    return max(0, min(100, 38 + count * 12 + question + resolved))
+
+
+def concision(text):
+    count = len(words(text))
+    if count == 0:
+        return 0
+    # Faixa ampla: a abertura pode ocupar 15–25 segundos, e não uma frase isolada.
+    if 8 <= count <= 38:
+        return 100
+    if count < 8:
+        return max(35, 100 - (8 - count) * 10)
+    return max(15, 100 - (count - 38) * 5)
+
+
+PROPERTIES = [
+    ("ESPECIFICIDADE", specificity),
+    ("ENDEREÇAMENTO", address),
+    ("CONSEQUÊNCIA", stakes),
+    ("CURIOSIDADE", curiosity),
+    ("CONCISÃO", concision),
+]
+
+
+def classify(text):
+    best_name, best_hits = "Sem fórmula dominante", 0
+    for formula in FORMULAS:
+        hits = sum(bool(re.search(pattern, text, re.I)) for pattern in formula["match"])
+        if hits > best_hits:
+            best_name, best_hits = formula["name"], hits
+    return best_name, best_hits
+
+
+def score(text):
+    parts = {name: fn(text) for name, fn in PROPERTIES}
+    values = list(parts.values())
+    verdict = round(0.6 * (sum(values) / len(values)) + 0.4 * min(values))
+    name, hits = classify(text)
     return parts, verdict, name, hits
 
-def band(v): return "STRONG" if v >= 72 else "WORKABLE" if v >= 55 else "WEAK"
 
-def report(t, parts, verdict, name, hits):
-    print(f"\n  {t.strip()}")
-    print(f"  {'-' * min(72, max(20, len(t.strip())))}")
-    for k, v in parts.items():
-        print(f"    {k:<12} {v:3d}  {'#' * (v // 5)}")
-    print(f"    {'VERDICT':<12} {verdict:3d}  {band(verdict)}")
-    print(f"    formula      {name}" + (f"  ({hits} pattern{'s' if hits != 1 else ''} matched)" if hits else "  (no formula matched - that is usually a summary, not a hook)"))
-    low = min(parts, key=parts.get)
-    print(f"    weakest      {low} - {FIX[low]}")
+def band(value):
+    return "forte como rascunho" if value >= 72 else "revisável" if value >= 55 else "rever"
+
 
 FIX = {
- "SPECIFICITY": "swap one adjective for a number, a name or a date",
- "ADDRESS": "say 'you' in the first six words",
- "STAKES": "name what it costs them to keep doing it the current way",
- "CURIOSITY": "cut the half of the sentence that answers itself",
- "BREVITY": "9 to 24 words. Read it out loud and stop where you run out of breath",
+    "ESPECIFICIDADE": "troque um adjetivo vago por um conflito, personagem ou detalhe confirmado",
+    "ENDEREÇAMENTO": "avalie se uma pergunta direta ao espectador ajuda esta abertura",
+    "CONSEQUÊNCIA": "mostre o que está em jogo, sem exagerar o que a obra promete",
+    "CURIOSIDADE": "deixe uma pergunta aberta sem esconder informação essencial",
+    "CONCISÃO": "leia em voz alta e corte o trecho que não reforça a promessa",
 }
 
+
+def report(text, parts, verdict, formula, hits):
+    print(f"\n  {text.strip()}")
+    for name, value in parts.items():
+        print(f"    {name:<18} {value:3d}")
+    print(f"    {'NOTA AUXILIAR':<18} {verdict:3d}  {band(verdict)}")
+    suffix = f" ({hits} padrão(ões))" if hits else ""
+    print(f"    fórmula provável: {formula}{suffix}")
+    weakest = min(parts, key=parts.get)
+    print(f"    ponto para revisar: {FIX[weakest]}")
+
+
 def main():
-    a = sys.argv[1:]
-    as_json = "--json" in a
-    a = [x for x in a if x != "--json"]
-    if "--hook" in a:
-        lines = [a[a.index("--hook") + 1]]
-    elif a and os.path.exists(a[0]):
-        lines = [l for l in open(a[0]).read().splitlines() if l.strip()]
+    args = sys.argv[1:]
+    as_json = "--json" in args
+    args = [arg for arg in args if arg != "--json"]
+    if "--hook" in args:
+        index = args.index("--hook")
+        if index + 1 >= len(args):
+            print("Informe o texto após --hook.", file=sys.stderr)
+            sys.exit(2)
+        lines = [args[index + 1]]
+    elif args and os.path.isfile(args[0]):
+        with open(args[0], encoding="utf-8") as f:
+            lines = [line.strip() for line in f if line.strip()]
     else:
-        print(__doc__); sys.exit(1 if not a else 0)
-    out = []
-    for t in lines:
-        parts, verdict, name, hits = score(t)
-        out.append({"hook": t.strip(), "properties": parts, "verdict": verdict,
-                    "band": band(verdict), "formula": name, "matched": hits})
-    out.sort(key=lambda r: -r["verdict"])
+        print(__doc__)
+        sys.exit(1)
+    results = []
+    for line in lines:
+        parts, verdict, formula, hits = score(line)
+        results.append({
+            "gancho": line.strip(),
+            "criterios": parts,
+            "nota_auxiliar": verdict,
+            "faixa": band(verdict),
+            "formula_provavel": formula,
+            "padroes_encontrados": hits,
+        })
+    results.sort(key=lambda row: -row["nota_auxiliar"])
     if as_json:
-        print(json.dumps([{k: v for k, v in r.items() if k != "matched"} for r in out], indent=1)); return
-    for r in out:
-        report(r["hook"], r["properties"], r["verdict"], r["formula"], r["matched"])
-    if len(out) > 1:
-        print(f"\n  winner: {out[0]['hook'].strip()}  ({out[0]['verdict']}, {out[0]['band']})\n")
+        print(json.dumps(results, ensure_ascii=False, indent=2))
+        return
+    for row in results:
+        report(
+            row["gancho"], row["criterios"], row["nota_auxiliar"],
+            row["formula_provavel"], row["padroes_encontrados"],
+        )
+    if len(results) > 1:
+        print(f"\n  Melhor nota auxiliar: {results[0]['nota_auxiliar']} — revise no contexto.\n")
+
 
 if __name__ == "__main__":
     main()
