@@ -1,46 +1,36 @@
 ---
 name: yt-plan
 description: >-
-  Plan a week or a month of YouTube uploads - what to post, when, and in
-  what order, sized to the creator's actual capacity. Use for "plan my
-  week", "content calendar", "what should I post", "I have no idea what to
-  make next".
+  Planeje a semana de produção do MasterDica para os vídeos de terça, quinta
+  e sábado. Use para calendário editorial, escolha de pautas e organização
+  das próximas entregas.
 ---
 
 # yt-plan
 
-A plan that does not fit the week is a list of regrets. Ask two questions before writing anything:
-**how many hours do you actually have**, and **what is already half-made**.
+Organize três publicações semanais de modo que a pesquisa e a produção caibam na rotina real do canal.
 
-## Before you write
+## Antes de planejar
 
-1. Read `~/.codex/youtube/voice.md` if it exists. That is the user's voice profile: how they talk
-   on camera, the words they never use, who they are talking to, what they will not claim. If it
-   does not exist, ask for **three of their own videos**, read or transcribe them, infer the voice,
-   and write the file. A script in the wrong voice is worse than no script, because they have to
-   read it out loud.
-2. Never invent a number, a result or a source. If a figure would strengthen it and you do not have
-   one, ask for it or write the line without it.
+1. Leia ~/.codex/youtube/voice.md, se estiver disponível. Se não estiver, siga o perfil editorial do MasterDica neste repositório e sinalize que o perfil local ainda não foi configurado.
+2. Pergunte somente pelos dados ausentes que mudariam o plano: vídeos já iniciados, prazo excepcional ou capacidade semanal ainda não informada. O calendário habitual é terça, quinta e sábado, por volta de 11h–11h30.
+3. Priorize curadoria atemporal de filmes e séries, suspense, ação, ficção científica e minisséries. Use lançamentos quando forem relevantes para uma pauta confirmada.
+4. Não invente números de desempenho, tendências, fontes ou disponibilidade de títulos.
 
-## The shape of a week
+## Montagem do plano
 
-- **One anchor.** The video the week is for. It gets the most time and it goes out on the day the
-  channel's own analytics say is best - ask for that, do not assume Tuesday.
-- **One cheap one.** Built from something that exists: a clip, a reaction, a follow-up to the
-  comment that got the most replies last week.
-- **Shorts from the anchor.** Three, cut from the long video, not written separately. `/yt-shorts`
-  finds them.
+Entregue uma tabela compacta com dia/data, prioridade, pauta ou formato, promessa em uma frase, estado do material e próxima etapa.
 
-Three uploads on a seven-day week, not seven. A plan that posts daily is not a plan anyone
-recognises, and the empty days are what make the filled ones survive a bad week.
+- Planeje três vídeos: terça, quinta e sábado. Ajuste apenas quando houver feriado, atraso ou decisão explícita do usuário.
+- Escolha uma prioridade principal da semana e explique em uma frase por que ela deve receber mais atenção.
+- Ordene as etapas úteis: pesquisa e confirmação → seleção da pauta → roteiro → título e thumbnail → busca de trailer → descrição e publicação → revisão da thumbnail após cerca de seis horas.
+- Aproveite material já pesquisado ou roteiros em andamento; não recomece trabalho concluído.
+- Respeite a aprovação humana da pauta e do pacote antes da publicação.
+- Se faltar um dado de desempenho, registre como “não informado” em vez de escolher um dia com base em analytics inexistentes.
+- Quando a capacidade semanal não for conhecida e isso afetar a carga, peça essa informação; enquanto isso, apresente um plano provisório sem presumir horas disponíveis.
 
-## What to hand back
+## Entrega
 
-A table: day, format, working title, the one sentence it promises, and what already exists for it.
-Then the honest line at the bottom - how many hours this costs, and what to drop first if the week
-goes wrong.
+Inclua a prioridade principal, os três vídeos e a sequência de produção com responsáveis/insumos quando conhecidos. Indique a primeira entrega concreta de cada dia de publicação. Não acrescente Shorts automaticamente; proponha-os apenas se a transcrição ou o conteúdo existente permitir cortes úteis.
 
-## The gate
-
-Nothing here publishes. This skill writes and you publish. Every output ends in a block the user
-copies, and the last line of every run is the question: **ship it, or change it?**
+Nada é publicado por esta skill. Termine com uma pergunta curta de revisão: “Quer trocar alguma pauta ou manter este plano?”

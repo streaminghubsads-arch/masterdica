@@ -1,45 +1,39 @@
 ---
 name: yt-viral
 description: >-
-  Find what is actually working in the user's niche on YouTube and rank it
-  by how far each video beat its own channel, then name the formula. Use for
-  "what's working right now", "find viral videos in my niche", "why did this
-  blow up", competitor research, or a swipe file.
+  Pesquise vídeos públicos de canais estrangeiros de filmes e séries,
+  compare desempenho relativo ao canal e extraia oportunidades originais
+  para a curadoria atemporal do MasterDica.
 ---
 
 # yt-viral
 
-Raw view counts rank channel size, not ideas. This ranks by **multiple over each channel's own
-median**, which is the only version of the question that is about the video.
+Use referências de outros canais para descobrir temas e formatos que merecem investigação. Um vídeo com muitas visualizações é uma pista editorial, não prova de que o mesmo resultado se repetirá no MasterDica.
 
-```bash
-python3 swipe.py collected.json --min 2.0
-```
+## Onde pesquisar
 
-## Collecting the input
+- Comece por Max Estrenos e amplie para canais relevantes da Espanha, México, América Latina e Estados Unidos.
+- Priorize vídeos recentes e pautas evergreen de filmes e séries que tenham relação com suspense, ação, ficção científica, minisséries ou descoberta de catálogo.
+- Use listagens e informações públicas. Não use sessões autenticadas, credenciais ou dados privados.
+- Registre canal, título original, URL, visualizações observadas, duração e data de publicação quando disponíveis. Não invente campos ausentes.
+- Para calcular múltiplos por canal, use pelo menos quatro vídeos comparáveis por canal. Compare com cautela: idade do vídeo, formato e tamanho do canal mudam a leitura.
+- A coleta com o script é manual; yt-dlp não faz parte do repositório.
 
-You need at least **four videos per channel** or a median means nothing, and the tool will skip the
-channel and tell you it did. Collect them however the user prefers - `yt-dlp --flat-playlist -J`
-against a channel URL is the fastest, the public page works, a manual list works.
+## Análise
 
-```json
-[{"channel":"...","title":"...","views":412000,"url":"...","duration":613}]
-```
+O script swipe.py compara visualizações com a mediana dos vídeos fornecidos para cada canal. Não normalize por idade do vídeo e não compare diretamente múltiplos de canais diferentes como se fossem equivalentes. Informe quando o conjunto for pequeno, incompleto ou não comparável.
 
-**Read, do not scrape.** Public listings only, never a logged-in session, never the user's own
-account credentials.
+A classificação de fórmula usa correspondência aproximada com títulos em português em yt-script/hooks.json. Ela descreve padrões de texto encontrados, não demonstra por que um vídeo teve bom desempenho.
 
-## Reading the output
+Para cada referência promissora, separe:
 
-The multiple is the signal. The formula line is a judgement about the TITLE, matched against
-[the 21 formulas](../yt-script/hooks.json) - it is not a claim about why the video worked, and you
-should say so when you present it.
+1. **Observação:** o que os dados públicos mostram.
+2. **Hipótese:** qual mecanismo de tema ou embalagem pode ter ajudado.
+3. **Adaptação:** como transformar a ideia em pauta original para o MasterDica, sem copiar roteiro, thumbnail ou identidade visual.
+4. **Checagem editorial:** título oficial brasileiro, disponibilidade no Brasil, fatos confirmados e trailer oficial quando necessário.
 
-What to hand back: the top five with their multiples, the formula each used, and the ONE structural
-thing they share. Then the harder line - which of those the user could actually make this week, in
-their voice, with what they have.
+## Entrega
 
-## The gate
+Apresente até cinco referências com URL, canal, data e métricas disponíveis; identifique limites dos dados. Em seguida, sugira pautas originais adequadas ao calendário do MasterDica e explique em uma frase o encaixe de cada uma. Destaque uma prioridade, mas deixe a seleção final para Alexandre.
 
-Nothing here publishes. This skill writes and you publish. Every output ends in a block the user
-copies, and the last line of every run is the question: **ship it, or change it?**
+Não apresente estimativas como números observados, não invente causalidade e não recomende copiar conteúdo. Nada é publicado por esta skill.

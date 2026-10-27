@@ -1,2 +1,11 @@
 __pycache__/
 *.py[cod]
+
+# Exportações privadas e materiais brutos do canal
+/local-data/
+/private-data/
+/exports/
+/transcripts/
+*.srt
+*.vtt
+*retention*.csv
